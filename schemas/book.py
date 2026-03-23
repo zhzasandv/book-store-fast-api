@@ -27,3 +27,23 @@ class BookDTO(BaseModel):
         return None
 
     model_config = {"from_attributes": True}
+
+
+class BookCreateDTO(BaseModel):
+    name: str
+    price: float
+    title: str
+    publication_date: str
+    genre_id: int
+    author_ids: list[int]
+    oblojka: Optional[str] = None
+
+
+class BookUpdateDTO(BaseModel):
+    name: str | None = None
+    price: float | None = None
+    title: str | None = None
+    publication_date: str | None = None
+    genre_id: int | None = None
+    author_ids: list[int] | None = None
+    oblojka: str | None = None
