@@ -18,6 +18,9 @@ class BookService:
     def get_all(self) -> list[BookDTO]:
         return [BookDTO.model_validate(b) for b in self.repository.get_all()]
 
+    def search(self, q: str) -> list[BookDTO]:
+        return [BookDTO.model_validate(b) for b in self.repository.search(q)]
+
     def get_by_id(self, book_id: int) -> BookDTO:
         book = self.repository.get_by_id(book_id)
         if not book:

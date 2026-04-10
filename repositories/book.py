@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from models.book import Book, Author
+from models.book import Book, Author, Genre
 
 
 class BookRepository:
@@ -14,6 +14,24 @@ class BookRepository:
 
     def get_all(self) -> list[Book]:
         return self._with_relations().all()
+
+    def search(self, q: str) -> list[Book]:
+        pattern = f"%{q}%"
+        return (
+            self._with_relations()
+            .join(Book.genre)
+            .join(Book.authors)
+            .filter(
+                Book.name.ilike(pattern) |
+                Book.title.ilike(pattern) |
+                Author.first_name.ilike(pattern) |
+                Author.last_name.ilike(pattern) |
+                (Author.first_name + " " + Author.last_name).ilike(pattern) |
+                Genre.name.ilike(pattern)
+            )
+            .distinct()
+            .all()
+        )
 
     def get_by_id(self, book_id: int) -> Book | None:
         return self._with_relations().filter(Book.id == book_id).first()

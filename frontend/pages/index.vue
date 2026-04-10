@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { searchQuery, filteredBooks, pending, error } = useBooks()
+const { searchQuery, books, pending, error } = useBooks()
 </script>
 
 <template>
@@ -20,9 +20,9 @@ const { searchQuery, filteredBooks, pending, error } = useBooks()
     <section class="catalog">
       <div v-if="pending" class="state-message">Загрузка...</div>
       <div v-else-if="error" class="state-message error">Не удалось загрузить книги. Убедитесь, что бэкенд запущен.</div>
-      <div v-else-if="filteredBooks.length === 0" class="state-message">Ничего не найдено.</div>
+      <div v-else-if="books.length === 0" class="state-message">Ничего не найдено.</div>
       <div v-else class="books-grid">
-        <div v-for="book in filteredBooks" :key="book.id" class="book-card">
+        <div v-for="book in books" :key="book.id" class="book-card">
           <div class="book-cover">
             <img v-if="book.image_url" :src="book.image_url" :alt="book.name" />
             <div v-else class="no-cover">нет обложки</div>

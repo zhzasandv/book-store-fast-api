@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
 from repositories.book import BookRepository
@@ -15,6 +15,11 @@ def get_service(db: Session = Depends(get_db)) -> BookService:
 @router.get("/", response_model=list[BookDTO])
 def get_books(service: BookService = Depends(get_service)):
     return service.get_all()
+
+
+@router.get("/search", response_model=list[BookDTO])
+def search_books(q: str = Query(..., min_length=1), service: BookService = Depends(get_service)):
+    return service.search(q)
 
 
 @router.get("/{book_id}", response_model=BookDTO)
