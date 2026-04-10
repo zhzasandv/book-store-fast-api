@@ -58,22 +58,42 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 6. Запустить сервер
+### 6. Настроить переменные окружения
+
+```bash
+cp .env.example .env
+```
+
+Задать `BASE_URL` в `.env`:
+
+```env
+BASE_URL=http://localhost:8000
+```
+
+### 7. Запустить сервер
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Сервер запустится на `http://localhost:8000`
+Сервер запустится на `http://localhost:8000`. Таблицы в БД создаются автоматически при старте.
 
 ## Документация API
 
 После запуска доступна по адресу: `http://localhost:8000/docs`
 
-## Эндпоинты
+---
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/api/v1/books/` | Список всех книг |
-| GET | `/api/v1/authors/` | Список всех авторов |
-| GET | `/api/v1/genres/` | Список всех жанров |
+## Архитектура
+
+```
+Router → Service → Repository → Model
+```
+
+| Слой | Папка | Документация |
+|------|-------|--------------|
+| Router | `routers/` | [routers/README.md](routers/README.md) |
+| Service | `services/` | [services/README.md](services/README.md) |
+| Repository | `repositories/` | [repositories/README.md](repositories/README.md) |
+| Model | `models/` | [models/README.md](models/README.md) |
+| Schema | `schemas/` | [schemas/README.md](schemas/README.md) |
