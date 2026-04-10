@@ -2,6 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routers import books, authors, genres
+from models.book import Base
+from database import engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Books API", version="v1")
 
