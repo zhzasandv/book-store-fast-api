@@ -29,7 +29,7 @@ const { searchQuery, books, pending, error } = useBooks()
           </div>
           <div class="book-info">
             <h3 class="book-name">{{ book.name }}</h3>
-            <p class="book-authors">{{ book.authors.map(a => a.name).join(', ') }}</p>
+            <p class="book-authors">{{ book.authors.map(a => `${a.first_name} ${a.last_name}`).join(', ') }}</p>
             <p class="book-genre">{{ book.genre.name }}</p>
             <p class="book-price">{{ book.price }} ₸</p>
           </div>
