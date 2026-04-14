@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from repositories.book import BookRepository
 from services.book import BookService
-from schemas.book import BookDTO, BookCreateDTO, BookUpdateDTO
+from schemas.book import BookDTO, BookCreateDTO, BookListDTO, BookUpdateDTO
 
 router = APIRouter(prefix="/api/v1/books", tags=["books"])
 
@@ -12,9 +12,22 @@ def get_service(db: Session = Depends(get_db)) -> BookService:
     return BookService(BookRepository(db))
 
 
-@router.get("/", response_model=list[BookDTO])
-def get_books(service: BookService = Depends(get_service)):
-    return service.get_all()
+@router.get("/", response_model=BookListDTO)
+def get_books(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=50),
+    q: str | None = Query(None, min_length=1),
+    genre_id: int | None = Query(None, ge=1),
+    author_id: int | None = Query(None, ge=1),
+    service: BookService = Depends(get_service),
+):
+    return service.get_catalog(
+        page=page,
+        page_size=page_size,
+        q=q,
+        genre_id=genre_id,
+        author_id=author_id,
+    )
 
 
 @router.get("/search", response_model=list[BookDTO])

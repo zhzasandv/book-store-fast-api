@@ -47,3 +47,11 @@ class BookUpdateDTO(BaseModel):
     genre_id: int | None = None
     author_ids: list[int] | None = None
     oblojka: str | None = None
+
+
+class BookListDTO(BaseModel):
+    items: list[BookDTO]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

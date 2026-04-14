@@ -19,3 +19,11 @@ export interface Book {
   authors: Author[]
   image_url: string | null
 }
+
+export interface BookListResponse {
+  items: Book[]
+  total: number
+  page: number
+  page_size: number
+  total_pages: number
+}

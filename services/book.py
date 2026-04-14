@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from repositories.book import BookRepository
 from models.book import Author
-from schemas.book import BookDTO, BookCreateDTO, BookUpdateDTO
+from schemas.book import BookDTO, BookCreateDTO, BookListDTO, BookUpdateDTO
 from sqlalchemy.orm import Session
 
 
@@ -17,6 +17,30 @@ class BookService:
 
     def get_all(self) -> list[BookDTO]:
         return [BookDTO.model_validate(b) for b in self.repository.get_all()]
+
+    def get_catalog(
+        self,
+        page: int,
+        page_size: int,
+        q: str | None = None,
+        genre_id: int | None = None,
+        author_id: int | None = None,
+    ) -> BookListDTO:
+        books, total = self.repository.get_catalog(
+            page=page,
+            page_size=page_size,
+            q=q,
+            genre_id=genre_id,
+            author_id=author_id,
+        )
+        total_pages = (total + page_size - 1) // page_size if total > 0 else 0
+        return BookListDTO(
+            items=[BookDTO.model_validate(b) for b in books],
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+        )
 
     def search(self, q: str) -> list[BookDTO]:
         return [BookDTO.model_validate(b) for b in self.repository.search(q)]
