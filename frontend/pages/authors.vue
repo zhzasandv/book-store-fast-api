@@ -15,7 +15,9 @@ const authors = computed(() => data.value ?? [])
     <div class="listing-header">
       <p class="listing-kicker">Люди и книги</p>
       <h2 class="listing-title">Авторы</h2>
-      <p class="listing-text">Переход с карточки открывает библиотеку уже с фильтром по выбранному автору.</p>
+      <p class="listing-text">
+        Переход с карточки открывает библиотеку уже с фильтром по выбранному автору.
+      </p>
     </div>
 
     <div v-if="pending" class="state-message">Загрузка авторов...</div>
@@ -25,7 +27,13 @@ const authors = computed(() => data.value ?? [])
         v-for="author in authors"
         :key="author.id"
         class="listing-card"
-        :to="{ path: '/library', query: { author_id: String(author.id) } }"
+        :to="{
+          path: '/library',
+          query: {
+            author_id: String(author.id),
+            author_name: `${author.first_name} ${author.last_name}`,
+          },
+        }"
       >
         <p class="listing-card-label">Автор</p>
         <h3>{{ author.first_name }} {{ author.last_name }}</h3>
@@ -42,7 +50,7 @@ const authors = computed(() => data.value ?? [])
 }
 
 .listing-header {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.35rem;
   padding: 1.6rem 1.7rem;
   border-radius: 1.8rem;
   background:
@@ -82,7 +90,7 @@ const authors = computed(() => data.value ?? [])
 .listing-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .listing-card {

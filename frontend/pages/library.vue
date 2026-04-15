@@ -2,8 +2,13 @@
 import type { Author, Genre } from '~/types/book'
 
 const router = useRouter()
+const route = useRoute()
 const config = useRuntimeConfig()
 const { buildLibraryQuery } = useLibraryQuery()
+const genreNamesStorageKey = 'libraryGenreNames'
+const authorNamesStorageKey = 'libraryAuthorNames'
+const savedGenreNames = ref<Record<string, string>>({})
+const savedAuthorNames = ref<Record<string, string>>({})
 
 const { books, total, totalPages, page, genreId, authorId, pending, error } = useBooks()
 
@@ -23,26 +28,144 @@ const previousPage = computed(() => Math.max(page.value - 1, 1))
 const nextPage = computed(() => Math.min(page.value + 1, Math.max(totalPages.value, 1)))
 const selectedGenre = computed(() => (genreId.value ? String(genreId.value) : ''))
 const selectedAuthor = computed(() => (authorId.value ? String(authorId.value) : ''))
+const selectedGenreModel = computed({
+  get: () => selectedGenre.value,
+  set: (value) => {
+    void applyGenreFilter(value)
+  },
+})
+const selectedAuthorModel = computed({
+  get: () => selectedAuthor.value,
+  set: (value) => {
+    void applyAuthorFilter(value)
+  },
+})
+const selectedGenreName = computed(() => {
+  const value = route.query.genre_name
+  if (typeof value === 'string' && value.trim()) {
+    return value.trim()
+  }
 
-async function onGenreChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value || undefined
+  return selectedGenre.value ? savedGenreNames.value[selectedGenre.value] : undefined
+})
+const selectedAuthorName = computed(() => {
+  const value = route.query.author_name
+  if (typeof value === 'string' && value.trim()) {
+    return value.trim()
+  }
+
+  return selectedAuthor.value ? savedAuthorNames.value[selectedAuthor.value] : undefined
+})
+const genresWithoutSelected = computed(() => (
+  genreId.value
+    ? genres.value.filter((genre) => genre.id !== genreId.value)
+    : genres.value
+))
+const authorsWithoutSelected = computed(() => (
+  authorId.value
+    ? authors.value.filter((author) => author.id !== authorId.value)
+    : authors.value
+))
+const selectedGenreOption = computed(() => {
+  if (!genreId.value) {
+    return null
+  }
+
+  const genre = genres.value.find((item) => item.id === genreId.value)
+  const genreFromBooks = books.value.find((book) => book.genre.id === genreId.value)?.genre
+
+  return genre ?? genreFromBooks ?? {
+    id: genreId.value,
+    name: selectedGenreName.value ?? `Жанр #${genreId.value}`,
+  }
+})
+const selectedAuthorOption = computed(() => {
+  if (!authorId.value) {
+    return null
+  }
+
+  const author = authors.value.find((item) => item.id === authorId.value)
+  const authorFromBooks = books.value
+    .flatMap((book) => book.authors)
+    .find((item) => item.id === authorId.value)
+
+  if (author ?? authorFromBooks) {
+    return author ?? authorFromBooks
+  }
+
+  const [firstName = 'Автор', ...lastNameParts] = selectedAuthorName.value?.split(' ') ?? []
+
+  return {
+    id: authorId.value,
+    first_name: firstName,
+    last_name: lastNameParts.join(' ') || `#${authorId.value}`,
+  }
+})
+
+function saveFilterNames() {
+  if (!import.meta.client) {
+    return
+  }
+
+  const genreNames = Object.fromEntries(genres.value.map((genre) => [String(genre.id), genre.name]))
+  const authorNames = Object.fromEntries(
+    authors.value.map((author) => [String(author.id), `${author.first_name} ${author.last_name}`])
+  )
+
+  savedGenreNames.value = { ...savedGenreNames.value, ...genreNames }
+  savedAuthorNames.value = { ...savedAuthorNames.value, ...authorNames }
+  localStorage.setItem(genreNamesStorageKey, JSON.stringify(savedGenreNames.value))
+  localStorage.setItem(authorNamesStorageKey, JSON.stringify(savedAuthorNames.value))
+}
+
+function readSavedFilterNames() {
+  if (!import.meta.client) {
+    return
+  }
+
+  try {
+    savedGenreNames.value = JSON.parse(localStorage.getItem(genreNamesStorageKey) ?? '{}')
+    savedAuthorNames.value = JSON.parse(localStorage.getItem(authorNamesStorageKey) ?? '{}')
+  } catch {
+    savedGenreNames.value = {}
+    savedAuthorNames.value = {}
+  }
+}
+
+async function applyGenreFilter(rawValue: string) {
+  const value = rawValue || null
+  const genre = value ? genres.value.find((item) => String(item.id) === value) : null
+  const selectedName = genre?.name ?? (value ? savedGenreNames.value[value] : null)
+
   await router.push({
     query: buildLibraryQuery({
       genre_id: value,
-      page: undefined,
+      genre_name: selectedName,
+      page: null,
     }),
   })
 }
 
-async function onAuthorChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value || undefined
+async function applyAuthorFilter(rawValue: string) {
+  const value = rawValue || null
+  const author = value ? authors.value.find((item) => String(item.id) === value) : null
+  const selectedName = author
+    ? `${author.first_name} ${author.last_name}`
+    : value
+      ? savedAuthorNames.value[value]
+      : null
+
   await router.push({
     query: buildLibraryQuery({
       author_id: value,
-      page: undefined,
+      author_name: selectedName,
+      page: null,
     }),
   })
 }
+
+onMounted(readSavedFilterNames)
+watch([genres, authors], saveFilterNames)
 </script>
 
 <template>
@@ -62,9 +185,16 @@ async function onAuthorChange(event: Event) {
     <section class="filters-panel">
       <label class="filter-field">
         <span class="filter-label">Жанр</span>
-        <select class="filter-select" :value="selectedGenre" @change="onGenreChange">
+        <select
+          :key="`genre-${selectedGenre}-${selectedGenreOption?.name ?? ''}`"
+          v-model="selectedGenreModel"
+          class="filter-select"
+        >
           <option value="">Все жанры</option>
-          <option v-for="genre in genres" :key="genre.id" :value="genre.id">
+          <option v-if="selectedGenreOption" :value="String(selectedGenreOption.id)">
+            {{ selectedGenreOption.name }}
+          </option>
+          <option v-for="genre in genresWithoutSelected" :key="genre.id" :value="String(genre.id)">
             {{ genre.name }}
           </option>
         </select>
@@ -72,9 +202,16 @@ async function onAuthorChange(event: Event) {
 
       <label class="filter-field">
         <span class="filter-label">Автор</span>
-        <select class="filter-select" :value="selectedAuthor" @change="onAuthorChange">
+        <select
+          :key="`author-${selectedAuthor}-${selectedAuthorOption?.first_name ?? ''}-${selectedAuthorOption?.last_name ?? ''}`"
+          v-model="selectedAuthorModel"
+          class="filter-select"
+        >
           <option value="">Все авторы</option>
-          <option v-for="author in authors" :key="author.id" :value="author.id">
+          <option v-if="selectedAuthorOption" :value="String(selectedAuthorOption.id)">
+            {{ selectedAuthorOption.first_name }} {{ selectedAuthorOption.last_name }}
+          </option>
+          <option v-for="author in authorsWithoutSelected" :key="author.id" :value="String(author.id)">
             {{ author.first_name }} {{ author.last_name }}
           </option>
         </select>
@@ -83,7 +220,9 @@ async function onAuthorChange(event: Event) {
 
     <section class="catalog-panel">
       <div v-if="pending" class="state-message">Загрузка каталога...</div>
-      <div v-else-if="error" class="state-message error">Не удалось загрузить книги. Убедитесь, что бэкенд запущен.</div>
+      <div v-else-if="error" class="state-message error">
+        Не удалось загрузить книги. Убедитесь, что бэкенд запущен.
+      </div>
       <div v-else-if="books.length === 0" class="state-message">По текущим параметрам ничего не найдено.</div>
       <template v-else>
         <div class="books-grid">
@@ -95,7 +234,9 @@ async function onAuthorChange(event: Event) {
             <div class="book-info">
               <p class="book-genre">{{ book.genre.name }}</p>
               <h3 class="book-name">{{ book.name }}</h3>
-              <p class="book-authors">{{ book.authors.map(a => `${a.first_name} ${a.last_name}`).join(', ') }}</p>
+              <p class="book-authors">
+                {{ book.authors.map(a => `${a.first_name} ${a.last_name}`).join(', ') }}
+              </p>
               <p class="book-title">{{ book.title }}</p>
               <p class="book-price">{{ book.price }} ₸</p>
             </div>
@@ -139,7 +280,7 @@ async function onAuthorChange(event: Event) {
   width: min(1180px, 100%);
   margin: 0 auto;
   display: grid;
-  gap: 1.25rem;
+  gap: 1.35rem;
 }
 
 .library-heading,
@@ -227,7 +368,7 @@ async function onAuthorChange(event: Event) {
 .books-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.12rem;
 }
 
 .book-card {

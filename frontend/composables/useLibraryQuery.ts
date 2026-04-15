@@ -1,17 +1,31 @@
 export function useLibraryQuery() {
   const route = useRoute()
 
+  type QueryValue = string | null | undefined
+  type QueryKey = 'q' | 'genre_id' | 'genre_name' | 'author_id' | 'author_name' | 'page'
+  type QueryOverrides = Partial<Record<QueryKey, QueryValue>>
+
   function getStringParam(value: string | string[] | undefined) {
     return typeof value === 'string' && value.trim() ? value.trim() : undefined
   }
 
-  function buildLibraryQuery(overrides: Record<string, string | undefined> = {}) {
+  function getQueryValue(name: keyof QueryOverrides, overrides: QueryOverrides) {
+    if (Object.hasOwn(overrides, name)) {
+      return overrides[name] === null ? undefined : overrides[name]
+    }
+
+    return getStringParam(route.query[name])
+  }
+
+  function buildLibraryQuery(overrides: QueryOverrides = {}) {
     const query: Record<string, string> = {}
 
-    const q = overrides.q ?? getStringParam(route.query.q)
-    const genreId = overrides.genre_id ?? getStringParam(route.query.genre_id)
-    const authorId = overrides.author_id ?? getStringParam(route.query.author_id)
-    const page = overrides.page ?? getStringParam(route.query.page)
+    const q = getQueryValue('q', overrides)
+    const genreId = getQueryValue('genre_id', overrides)
+    const genreName = getQueryValue('genre_name', overrides)
+    const authorId = getQueryValue('author_id', overrides)
+    const authorName = getQueryValue('author_name', overrides)
+    const page = getQueryValue('page', overrides)
 
     if (q) {
       query.q = q
@@ -21,8 +35,16 @@ export function useLibraryQuery() {
       query.genre_id = genreId
     }
 
+    if (genreId && genreName) {
+      query.genre_name = genreName
+    }
+
     if (authorId) {
       query.author_id = authorId
+    }
+
+    if (authorId && authorName) {
+      query.author_name = authorName
     }
 
     if (page && page !== '1') {

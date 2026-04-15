@@ -15,7 +15,9 @@ const genres = computed(() => data.value ?? [])
     <div class="listing-header">
       <p class="listing-kicker">Навигация по полкам</p>
       <h2 class="listing-title">Жанры</h2>
-      <p class="listing-text">Каждая карточка ведёт в библиотеку уже с активным фильтром.</p>
+      <p class="listing-text">
+        Каждая карточка ведёт в библиотеку уже с активным фильтром.
+      </p>
     </div>
 
     <div v-if="pending" class="state-message">Загрузка жанров...</div>
@@ -25,7 +27,13 @@ const genres = computed(() => data.value ?? [])
         v-for="genre in genres"
         :key="genre.id"
         class="listing-card"
-        :to="{ path: '/library', query: { genre_id: String(genre.id) } }"
+        :to="{
+          path: '/library',
+          query: {
+            genre_id: String(genre.id),
+            genre_name: genre.name,
+          },
+        }"
       >
         <p class="listing-card-label">Жанр</p>
         <h3>{{ genre.name }}</h3>
@@ -42,7 +50,7 @@ const genres = computed(() => data.value ?? [])
 }
 
 .listing-header {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.35rem;
   padding: 1.6rem 1.7rem;
   border-radius: 1.8rem;
   background:
@@ -82,7 +90,7 @@ const genres = computed(() => data.value ?? [])
 .listing-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .listing-card {

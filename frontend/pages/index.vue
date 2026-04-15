@@ -2,10 +2,13 @@
   <section class="home-page">
     <div class="home-card">
       <p class="home-kicker">Домашняя палуба</p>
-      <h2 class="home-title">Каталог, который начинается как витрина, а работает как библиотека.</h2>
+      <h2 class="home-title">
+        Место, где книги, знания и читатели встречаются в одном пространстве
+      </h2>
       <p class="home-text">
-        На главной остаются только атмосфера и поиск. Дальше пользователь уходит в библиотеку, жанры и авторов,
-        а шапка сайта плавно поднимается наверх и превращается в рабочую навигацию.
+        Наш каталог создан для тех, кто ищет книги для учебы, профессионального роста
+        или чтения для себя. От основ программирования до профессиональной разработки:
+        все необходимые материалы собраны в одном каталоге.
       </p>
 
       <div class="home-actions">
@@ -27,23 +30,23 @@
 .home-page {
   display: flex;
   justify-content: center;
-  padding-bottom: 5rem;
+  padding-bottom: 3rem;
 }
 
 .home-card {
-  width: min(52rem, 100%);
-  padding: 2rem 2.2rem;
-  border-radius: 2rem;
+  width: min(48rem, 100%);
+  padding: 1.55rem 1.8rem;
+  border-radius: 1.35rem;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
     rgba(14, 15, 25, 0.76);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.24);
   text-align: center;
 }
 
 .home-kicker {
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.65rem;
   color: #f2c96d;
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -52,16 +55,16 @@
 
 .home-title {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3.3rem);
-  line-height: 1.04;
+  font-size: clamp(1.65rem, 2.5vw, 2.7rem);
+  line-height: 1.08;
 }
 
 .home-text {
-  margin: 1.2rem auto 0;
-  max-width: 40rem;
+  margin: 0.9rem auto 0;
+  max-width: 38rem;
   color: #c9c1b5;
-  font-size: 1.04rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.58;
 }
 
 .home-actions {
@@ -69,11 +72,11 @@
   justify-content: center;
   gap: 0.8rem;
   flex-wrap: wrap;
-  margin-top: 1.8rem;
+  margin-top: 1.25rem;
 }
 
 .home-link {
-  padding: 0.9rem 1.3rem;
+  padding: 0.78rem 1.15rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);

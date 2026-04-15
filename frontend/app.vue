@@ -22,11 +22,13 @@ const navigationItems = [
 ]
 
 async function submitSearch() {
+  const nextQuery = searchInput.value.trim()
+
   await router.push({
     path: '/library',
     query: buildLibraryQuery({
-      q: searchInput.value.trim() || undefined,
-      page: undefined,
+      q: nextQuery || null,
+      page: null,
     }),
   })
 }
@@ -50,7 +52,7 @@ async function submitSearch() {
         </NuxtLink>
       </nav>
 
-      <div class="brand-block">
+      <div class="brand-block" :aria-hidden="!isHomePage">
         <NuxtLink class="brand-link" to="/" aria-label="На главную">
           <div class="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 160 160" class="brand-logo">
@@ -163,26 +165,26 @@ a {
 }
 
 .site-header {
-  min-height: 100vh;
+  min-height: 48vh;
   display: grid;
-  align-content: center;
+  align-content: start;
   justify-items: center;
-  gap: 1.4rem;
-  padding: 2rem 1.25rem 3rem;
+  gap: 1rem;
+  padding: 1.5rem 1.25rem 1.2rem;
   transition:
-    min-height 0.7s ease,
-    padding 0.7s ease,
-    gap 0.7s ease,
-    background-color 0.7s ease,
-    border-color 0.7s ease;
+    min-height 1.35s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 1.35s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 1.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 1.15s ease,
+    border-color 1.15s ease;
 }
 
 .app-shell.compact .site-header {
   position: sticky;
   top: 0;
   min-height: auto;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem 1.1rem;
+  gap: 0.78rem;
+  padding: 0.9rem 1.25rem 1rem;
   background: rgba(9, 10, 17, 0.72);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--line-soft);
@@ -197,6 +199,17 @@ a {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  transition:
+    padding 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 1s ease,
+    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-shell.compact .main-nav {
+  gap: 0.55rem;
+  padding: 0.4rem;
+  transform: translateY(-0.05rem);
 }
 
 .nav-link {
@@ -206,7 +219,15 @@ a {
   text-decoration: none;
   letter-spacing: 0.04em;
   font-size: 0.92rem;
-  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  transition:
+    padding 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.app-shell.compact .nav-link {
+  padding: 0.62rem 1rem;
 }
 
 .nav-link:hover,
@@ -217,26 +238,37 @@ a {
 }
 
 .brand-block {
-  transition: transform 0.7s ease, opacity 0.7s ease;
+  max-height: 14rem;
+  opacity: 1;
+  overflow: hidden;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transform-origin: center top;
+  transition:
+    max-height 1.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1.05s ease,
+    transform 1.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-shell.compact .brand-block {
-  transform: scale(0.68) translateY(-0.4rem);
-  transform-origin: center top;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-1.2rem) scale(0.9);
 }
 
 .brand-link {
   display: grid;
   justify-items: center;
-  gap: 1rem;
+  gap: 0.7rem;
   text-decoration: none;
 }
 
 .brand-mark {
-  width: 7rem;
-  height: 7rem;
-  padding: 0.8rem;
-  border-radius: 2rem;
+  width: 4.9rem;
+  height: 4.9rem;
+  padding: 0.55rem;
+  border-radius: 1.4rem;
   background:
     linear-gradient(145deg, rgba(255, 245, 220, 0.12), rgba(249, 115, 22, 0.08)),
     rgba(255, 255, 255, 0.04);
@@ -255,34 +287,36 @@ a {
 }
 
 .brand-kicker {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.35rem;
   color: #f2c96d;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
 .brand-title {
   margin: 0;
-  font-size: clamp(2.8rem, 7vw, 5.8rem);
-  line-height: 0.96;
+  font-size: clamp(2rem, 4.8vw, 3.9rem);
+  line-height: 1;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
 
 .global-search {
-  width: min(44rem, calc(100vw - 2rem));
+  width: min(42rem, calc(100vw - 2rem));
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.75rem;
   transition:
-    transform 0.7s ease,
-    width 0.7s ease;
+    transform 1.35s cubic-bezier(0.16, 1, 0.3, 1),
+    width 1.35s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1s ease;
 }
 
 .app-shell.compact .global-search {
-  width: min(34rem, calc(100vw - 2rem));
-  transform: translateY(-0.2rem);
+  width: min(38rem, calc(100vw - 2rem));
+  transform: translateY(-0.25rem);
 }
 
 .global-search-input,
@@ -298,6 +332,9 @@ a {
   background: rgba(255, 249, 240, 0.88);
   color: #201b18;
   box-shadow: inset 0 0 0 1px rgba(68, 40, 18, 0.12);
+  transition:
+    padding 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease;
 }
 
 .global-search-button {
@@ -306,10 +343,34 @@ a {
   color: var(--accent-ink);
   font-weight: 700;
   cursor: pointer;
+  transition:
+    padding 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s ease;
+}
+
+.app-shell.compact .global-search-input {
+  padding: 0.82rem 1.2rem;
+}
+
+.app-shell.compact .global-search-button {
+  padding: 0 1.25rem;
 }
 
 .page-stage {
-  padding: 0 1.25rem 4rem;
+  padding: 0 1.25rem 3rem;
+  animation: page-reveal 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes page-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.7rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 720px) {
