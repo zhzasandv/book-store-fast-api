@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends 
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from repositories.author import AuthorRepository
@@ -28,7 +28,11 @@ def create_author(data: AuthorCreateDTO, service: AuthorService = Depends(get_se
 
 
 @router.put("/{author_id}", response_model=AuthorDTO)
-def update_author(author_id: int, data: AuthorUpdateDTO, service: AuthorService = Depends(get_service)):
+def update_author(
+    author_id: int,
+    data: AuthorUpdateDTO,
+    service: AuthorService = Depends(get_service),
+):
     return service.update(author_id, data)
 
 

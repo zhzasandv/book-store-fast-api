@@ -15,6 +15,12 @@ class BookRepository:
     def get_all(self) -> list[Book]:
         return self._with_relations().all()
 
+    def get_authors_by_ids(self, author_ids: list[int]) -> list[Author]:
+        return self.db.query(Author).filter(Author.id.in_(author_ids)).all()
+
+    def genre_exists(self, genre_id: int) -> bool:
+        return self.db.query(Genre.id).filter(Genre.id == genre_id).first() is not None
+
     def _apply_filters(
         self,
         query,

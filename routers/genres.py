@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends 
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from repositories.genre import GenreRepository
@@ -28,7 +28,11 @@ def create_genre(data: GenreCreateDTO, service: GenreService = Depends(get_servi
 
 
 @router.put("/{genre_id}", response_model=GenreDTO)
-def update_genre(genre_id: int, data: GenreUpdateDTO, service: GenreService = Depends(get_service)):
+def update_genre(
+    genre_id: int,
+    data: GenreUpdateDTO,
+    service: GenreService = Depends(get_service),
+):
     return service.update(genre_id, data)
 
 

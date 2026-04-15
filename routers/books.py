@@ -42,12 +42,12 @@ def get_book(book_id: int, service: BookService = Depends(get_service)):
 
 @router.post("/", response_model=BookDTO, status_code=201)
 def create_book(data: BookCreateDTO, service: BookService = Depends(get_service)):
-    return service.create(data, service.repository.db)
+    return service.create(data)
 
 
 @router.put("/{book_id}", response_model=BookDTO)
 def update_book(book_id: int, data: BookUpdateDTO, service: BookService = Depends(get_service)):
-    return service.update(book_id, data, service.repository.db)
+    return service.update(book_id, data)
 
 
 @router.delete("/{book_id}", status_code=204)
